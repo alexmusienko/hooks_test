@@ -1,38 +1,81 @@
-import data from './data';
-import { useState, useMemo, useDeferredValue, useTransition } from 'react';
+import { useState, memo, PureComponent, Component, useRef, useCallback } from 'react';
+import { Container } from 'react-bootstrap';
+import './App.css';
+
+// class Form extends Component {
+
+//     shouldComponentUpdate(nextProps) {
+//         return this.props.mail.name !== nextProps.mail.name;
+//     }
+
+//     render() {
+//         console.log('render');
+
+//         return (
+//             <Container>
+//                 <form className="w-50 border mt-5 p-3 m-auto">
+//                     <div className="mb-3">
+//                         <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
+//                         <input value={this.props.mail.name} type="email" className='form-control' id="exampleFormControlInput1" placeholder="name@example.com" />
+//                     </div>
+//                     <div className="mb-3">
+//                         <label htmlFor="exampleFormControlTextarea1" className="form-label">Example textarea</label>
+//                         <textarea value={this.props.text} className="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+//                     </div>
+//                 </form>
+//             </Container>
+//         )
+//     }
+// };
+
+// function compareProps(prevProps, nextProps) {
+//     return (prevProps.mail.name === nextProps.mail.name && prevProps.text === nextProps.text);
+// }
+
+const Form = memo((props) => {
+
+    console.log('render');
+
+    return (
+        <Container>
+            <form className="w-50 border mt-5 p-3 m-auto">
+                <div className="mb-3">
+                    <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
+                    <input value={props.mail} type="email" className='form-control' id="exampleFormControlInput1" placeholder="name@example.com" />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="exampleFormControlTextarea1" className="form-label">Example textarea</label>
+                    <textarea value={props.text} className="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                </div>
+            </form>
+        </Container>
+    )
+});
 
 function App() {
-    const [text, setText] = useState('');
-    const [posts, setPosts] = useState(data);
-    //const deferredValue = useDeferredValue(text);
-    const [isPending, startTransition] = useTransition();
+    const [data, setData] = useState({
+        mail: "name@example.com",
+        text: 'some text'
+    });
 
-    const filteredPosts = useMemo(() => {
-        const searchText = text.toLowerCase();
-        return posts.filter(item => item.name.toLowerCase().includes(searchText));
-    }, [text]);
+    // const onLog = useRef(() => {
+    //     console.log('wow');
+    // })
 
-    const onValueChange = (e) => {
-        startTransition(() =>
-            setText(e.target.value)
-        );
-    }
+    const onLog = useCallback(() => {
+            console.log('wow');
+        }, []);
 
     return (
         <>
-            <input value={text} type='text' onChange={onValueChange} />
-
-            <hr />
-
-            <div>
-                {isPending ? <h4>Loading...</h4> :
-                    filteredPosts.map(post => (
-                        <div key={post._id}>
-                            <h4>{post.name}</h4>
-                        </div>
-                    ))
-                }
-            </div>
+            <Form mail={data.mail} text={data.text} onLog={onLog} />
+            <button
+                onClick={() => setData({
+                    mail: "nam2e@example.com",
+                    text: 'some text2'
+                })}>
+                Click me
+            </button>
         </>
     );
 }
