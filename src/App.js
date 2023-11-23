@@ -1,76 +1,68 @@
-import { createContext, useContext, useState } from 'react';
+import { useReducer, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import './App.css';
 
-const dataContext = createContext({
-    mail: "111@example.com",
-    text: 'text 111',
-    forceChangeMail: () => {}
-});
-
-const { Provider } = dataContext;
-
-const InputComponent = () => {
-
-    const context = useContext(dataContext);
-
-    return (
-        <>
-            <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
-            <input
-                value={context.mail}
-                onFocus={context.forceChangeMail}
-                type="email"
-                className='form-control'
-                id="exampleFormControlInput1"
-                placeholder="name@example.com" />
-        </>
-    )
+function reducer(state, action) {
+    switch (action.type) {
+        case 'toggle':
+            return { autoplay: !state.autoplay };
+        case 'slow':
+            return { autoplay: 300 };
+        case 'fast':
+            return { autoplay: 700 };
+        case 'custom':
+            return { autoplay: action.payload };
+        default:
+            return new Error();
+    }
 }
 
+function init(initial) {
+    return { autoplay: initial };
+}
 
-const Form = (props) => {
+const Slider = ({ initial }) => {
+    const [slide, setSlide] = useState(0);
+    // const [autoplay, setAutoplay] = useState(false);
+    const [autoplay, dispatch] = useReducer(reducer, initial, init);
 
-    console.log('render');
-
-    return (
-        <Container>
-            <form className="w-50 border mt-5 p-3 m-auto">
-                <div className="mb-3">
-                    <InputComponent />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="exampleFormControlTextarea1" className="form-label">Example textarea</label>
-                    <textarea value={props.text} className="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                </div>
-            </form>
-        </Container>
-    )
-};
-
-function App() {
-    const [data, setData] = useState({
-        mail: "222@example.com",
-        text: 'text 222',
-        forceChangeMail: forceChangeMail
-    });
-
-    function forceChangeMail() {
-        setData(data => ({...data, mail: '555@example.com'}));
+    function changeSlide(i) {
+        setSlide(slide => slide + i);
     }
 
     return (
-        <Provider value={data}>
-            <Form text={data.text} />
-            <button
-                onClick={() => setData({
-                    mail: "333@example.com",
-                    text: 'text 333',
-                    forceChangeMail: forceChangeMail
-                })}>
-                Click me
-            </button>
-        </Provider>
+        <Container>
+            <div className="slider w-50 m-auto">
+                <img className="d-block w-100" src="https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg" alt="slide" />
+                <div className="text-center mt-5">Active slide {slide} <br />{autoplay.autoplay ? 'auto' : null} </div>
+                <div className="buttons mt-3">
+                    <button
+                        className="btn btn-primary me-2"
+                        onClick={() => changeSlide(-1)}>-1</button>
+                    <button
+                        className="btn btn-primary me-2"
+                        onClick={() => changeSlide(1)}>+1</button>
+                    <button
+                        className="btn btn-primary me-2"
+                        onClick={() => dispatch({ type: 'toggle' })}>toggle autoplay</button>
+                    <button
+                        className="btn btn-primary me-2"
+                        onClick={() => dispatch({ type: 'slow' })}>slow autoplay</button>
+                    <button
+                        className="btn btn-primary me-2"
+                        onClick={() => dispatch({ type: 'fast' })}>fast autoplay</button>
+                    <button
+                        className="btn btn-primary me-2"
+                        onClick={(e) => dispatch({ type: 'custom', payload: +e.target.textContent })}>500</button>
+                </div>
+            </div>
+        </Container>
+    )
+}
+
+function App() {
+    return (
+        <Slider initial={false} />
     );
 }
 
