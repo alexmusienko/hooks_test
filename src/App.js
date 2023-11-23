@@ -1,38 +1,35 @@
-import { useState, memo, PureComponent, Component, useRef, useCallback } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import './App.css';
 
-// class Form extends Component {
+const dataContext = createContext({
+    mail: "111@example.com",
+    text: 'text 111',
+    forceChangeMail: () => {}
+});
 
-//     shouldComponentUpdate(nextProps) {
-//         return this.props.mail.name !== nextProps.mail.name;
-//     }
+const { Provider } = dataContext;
 
-//     render() {
-//         console.log('render');
+const InputComponent = () => {
 
-//         return (
-//             <Container>
-//                 <form className="w-50 border mt-5 p-3 m-auto">
-//                     <div className="mb-3">
-//                         <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
-//                         <input value={this.props.mail.name} type="email" className='form-control' id="exampleFormControlInput1" placeholder="name@example.com" />
-//                     </div>
-//                     <div className="mb-3">
-//                         <label htmlFor="exampleFormControlTextarea1" className="form-label">Example textarea</label>
-//                         <textarea value={this.props.text} className="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-//                     </div>
-//                 </form>
-//             </Container>
-//         )
-//     }
-// };
+    const context = useContext(dataContext);
 
-// function compareProps(prevProps, nextProps) {
-//     return (prevProps.mail.name === nextProps.mail.name && prevProps.text === nextProps.text);
-// }
+    return (
+        <>
+            <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
+            <input
+                value={context.mail}
+                onFocus={context.forceChangeMail}
+                type="email"
+                className='form-control'
+                id="exampleFormControlInput1"
+                placeholder="name@example.com" />
+        </>
+    )
+}
 
-const Form = memo((props) => {
+
+const Form = (props) => {
 
     console.log('render');
 
@@ -40,8 +37,7 @@ const Form = memo((props) => {
         <Container>
             <form className="w-50 border mt-5 p-3 m-auto">
                 <div className="mb-3">
-                    <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
-                    <input value={props.mail} type="email" className='form-control' id="exampleFormControlInput1" placeholder="name@example.com" />
+                    <InputComponent />
                 </div>
                 <div className="mb-3">
                     <label htmlFor="exampleFormControlTextarea1" className="form-label">Example textarea</label>
@@ -50,33 +46,31 @@ const Form = memo((props) => {
             </form>
         </Container>
     )
-});
+};
 
 function App() {
     const [data, setData] = useState({
-        mail: "name@example.com",
-        text: 'some text'
+        mail: "222@example.com",
+        text: 'text 222',
+        forceChangeMail: forceChangeMail
     });
 
-    // const onLog = useRef(() => {
-    //     console.log('wow');
-    // })
-
-    const onLog = useCallback(() => {
-            console.log('wow');
-        }, []);
+    function forceChangeMail() {
+        setData(data => ({...data, mail: '555@example.com'}));
+    }
 
     return (
-        <>
-            <Form mail={data.mail} text={data.text} onLog={onLog} />
+        <Provider value={data}>
+            <Form text={data.text} />
             <button
                 onClick={() => setData({
-                    mail: "nam2e@example.com",
-                    text: 'some text2'
+                    mail: "333@example.com",
+                    text: 'text 333',
+                    forceChangeMail: forceChangeMail
                 })}>
                 Click me
             </button>
-        </>
+        </Provider>
     );
 }
 
